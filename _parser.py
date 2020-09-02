@@ -1,13 +1,19 @@
 from tokenizer import Tokenizer
-
+from preprocessor import PreProcessor
 
 class Parser:
     tokens = None
 
     @staticmethod
     def run(code):
-        Parser.tokens = Tokenizer(code)
-        return Parser.parseExpression()
+        processed_code = PreProcessor.process(code)
+        Parser.tokens = Tokenizer(processed_code)
+        res = Parser.parseExpression()
+        if Parser.tokens.actual._type == "EOF":
+            return res
+        else:
+            raise SyntaxError(
+                f"INVALID TOKEN: token type espected {'EOF'}, instead got {Parser.tokens.actual.value} in position: ({Parser.tokens.position})")
 
     @staticmethod
     def parseExpression():
@@ -25,7 +31,7 @@ class Parser:
                     if Parser.tokens.actual._type == 'INT':
                         res += int(Parser.tokens.actual.value)
                     else:
-                        raise NameError(
+                        raise SyntaxError(
                             f"INVALID TOKEN: token type espected {'INT'}, instead got {Parser.tokens.actual._type} in position: ({Parser.tokens.position}) ")
                 if Parser.tokens.actual._type == 'MINUS':
                     Parser.tokens.selectNext()
@@ -33,14 +39,11 @@ class Parser:
                     if Parser.tokens.actual._type == 'INT':
                         res -= int(Parser.tokens.actual.value)
                     else:
-                        raise NameError(
+                        raise SyntaxError(
                             f"INVALID TOKEN: token type espected {'INT'}, instead got {Parser.tokens.actual._type} in position: ({Parser.tokens.position})")
                 Parser.tokens.selectNext()
-            if Parser.tokens.actual._type == 'INT':
-                raise NameError(
-                    'INVALID GRAMMAR: Two Numbers separated only by spaces in position: ({Parser.tokens.position})')
             return res
 
         else:
-            raise NameError(
+            raise SyntaxError(
                 f'INVALID TOKEN: ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position})')
