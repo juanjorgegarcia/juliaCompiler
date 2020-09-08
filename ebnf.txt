@@ -1,0 +1,13 @@
+TERM = NUMBER, {("*" | "/"), NUMBER} ;
+EXPRESSION = TERM, {("+" | "-"), TERM} ;
+NUMBER = DIGIT, {DIGIT} ;
+DIGIT = 0 | 1 | ... | 9 ;
+
+-----------------------------------------
+suggestion EBNF with parenteses
+
+AGRUP = {"(",EXPRESSION, ")"};
+TERM = NUMBER | AGRUP, {("*" | "/"), NUMBER | AGRUP} ;
+EXPRESSION = TERM, {("+" | "-"), TERM} ;
+NUMBER = DIGIT, {DIGIT} ;
+DIGIT = 0 | 1 | ... | 9 ;

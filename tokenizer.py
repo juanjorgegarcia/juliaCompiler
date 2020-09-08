@@ -23,13 +23,23 @@ class Tokenizer:
             self.selectNext()
             return
 
+        if value == "/":
+            self.actual = Token("DIV", value)
+            self.position += 1
+            return
+
+        if value == "*":
+            self.actual = Token("MULT", value)
+            self.position += 1
+            return
+
         if value == "+":
-            self.actual = Token("PLUS", self.origin[self.position])
+            self.actual = Token("PLUS", value)
             self.position += 1
             return
 
         if value == "-":
-            self.actual = Token("MINUS", self.origin[self.position])
+            self.actual = Token("MINUS", value)
             self.position += 1
             return
 

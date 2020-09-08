@@ -1,10 +1,10 @@
 import re
 
-class PreProcessor:
+
+class PrePro:
     code = None
 
-    @staticmethod
-    def process(code):
+    def filter(code):
         processed = ""
-        processed= re.sub(r"(#=)((.|\n)*?)(=#)", '', code)
+        processed = re.sub(r"(#=)((.|\n)*?)(=#)", '', code)
         return processed
