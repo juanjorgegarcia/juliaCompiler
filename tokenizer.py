@@ -43,6 +43,15 @@ class Tokenizer:
             self.position += 1
             return
 
+        if value == "(":
+            self.actual = Token("OPEN_PARENTHESIS", value)
+            self.position += 1
+            return
+        if value == ")":
+            self.actual = Token("CLOSED_PARENTHESIS", value)
+            self.position += 1
+            return
+
         if value.isnumeric():
             self.actual = Token("INT", '')
 
