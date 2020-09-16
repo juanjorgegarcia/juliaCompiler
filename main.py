@@ -1,4 +1,7 @@
 from _parser import Parser
 import sys
 
-print(Parser.run(sys.argv[1]))
+with open(sys.argv[1], 'r') as f:
+    output = f.read()
+
+print(Parser.run(output).Evaluate())
