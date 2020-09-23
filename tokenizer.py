@@ -7,6 +7,7 @@ class Tokenizer:
         self.origin = origin
         self.position = 0
         self.actual = None
+        self.keywords = {"println": "PRINT"}
 
     def selectNext(self):
         self.actual = Token("", "")
@@ -52,12 +53,33 @@ class Tokenizer:
             self.position += 1
             return
 
+        if value == "\n":
+            self.actual = Token("NEW_LINE", '\n')
+            self.position += 1
+            return
+
+        if value == "=":
+            self.actual = Token("EQUAL", value)
+            self.position += 1
+            return
+
         if value.isnumeric():
             self.actual = Token("INT", '')
+            for c in self.origin[self.position:]:
+                if c.isnumeric():
+                    self.actual.value += c
+                    self.position += 1
+                else:
+                    return
 
-        for c in self.origin[self.position:]:
-            if c.isnumeric():
-                self.actual.value += c
-                self.position += 1
-            else:
-                return
+        if value.isalpha():
+            self.actual = Token("INDENTIFIER", '')
+            for c in self.origin[self.position:]:
+                if c.isalpha() or c.isnumeric() or c is "_":
+                    self.actual.value += c
+                    self.position += 1
+                else:
+                    break
+            if self.actual.value in self.keywords:
+                self.actual._type = self.keywords[self.actual.value]
+            return
