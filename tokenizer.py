@@ -75,11 +75,12 @@ class Tokenizer:
         if value.isalpha():
             self.actual = Token("INDENTIFIER", '')
             for c in self.origin[self.position:]:
-                if c.isalpha() or c.isnumeric() or c is "_":
+                if c.isalpha() or c.isnumeric() or c == "_":
                     self.actual.value += c
                     self.position += 1
                 else:
                     break
             if self.actual.value in self.keywords:
                 self.actual._type = self.keywords[self.actual.value]
+
             return
