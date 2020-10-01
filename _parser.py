@@ -90,7 +90,12 @@ class Parser:
     @staticmethod
     def parseCommand():
         res = None
-        if Parser.tokens.actual._type == "INDENTIFIER":
+        if Parser.tokens.actual._type == "NEW_LINE":
+            Parser.tokens.selectNext()
+            if res is None:
+                res = NoOP(Parser.tokens.actual.value)
+
+        elif Parser.tokens.actual._type == "INDENTIFIER":
 
             res = Parser.tokens.actual
             Parser.tokens.selectNext()
@@ -114,10 +119,8 @@ class Parser:
             else:
                 raise SyntaxError(
                     f'INVALID SYNTAX: missing "OPEN_PARENTHESIS" after println call, instead got ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position})')
-        if Parser.tokens.actual._type == "NEW_LINE":
-            Parser.tokens.selectNext()
-            if res:
-                return res
-            else:
-                NoOP(Parser.tokens.actual.value)
-                return res
+
+        else:
+            raise SyntaxError(
+                f'UNEXPECTED TOKEN: got ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position})')
+        return res
