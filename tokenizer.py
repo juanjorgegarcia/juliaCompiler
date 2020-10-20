@@ -7,7 +7,8 @@ class Tokenizer:
         self.origin = origin
         self.position = 0
         self.actual = None
-        self.keywords = {"println": "PRINT"}
+        self.keywords = {"println": "PRINT",
+                         "readline": "READLINE", "while": "WHILE", "end": "END", "if": "IF", "else": "ELSE", "elseif": "ELSEIF"}
 
     def selectNext(self):
         self.actual = Token("", "")
@@ -61,6 +62,41 @@ class Tokenizer:
         if value == "=":
             self.actual = Token("EQUAL", value)
             self.position += 1
+            if self.position < len(self.origin):
+                if self.origin[self.position] == "=":
+                    self.actual = Token("EQ_OP", '==')
+                    self.position += 1
+            return
+
+        if value == "&":
+            self.position += 1
+            if self.position < len(self.origin):
+                if self.origin[self.position] == "&":
+                    self.actual = Token("AND_OP", value)
+                    self.position += 1
+            return
+
+        if value == "|":
+            self.position += 1
+            if self.position < len(self.origin):
+                if self.origin[self.position] == "|":
+                    self.actual = Token("OR_OP", value)
+                    self.position += 1
+            return
+
+        if value == ">":
+            self.actual = Token("G0_OP", value)
+            self.position += 1
+            return
+
+        if value == "<":
+            self.actual = Token("L0_OP", value)
+            self.position += 1
+            return
+
+        if value == "!":
+            self.actual = Token("NOT_OP", value)
+            self.position += 1
             return
 
         if value.isnumeric():
@@ -73,7 +109,7 @@ class Tokenizer:
                     return
 
         if value.isalpha():
-            self.actual = Token("INDENTIFIER", '')
+            self.actual = Token("IDENTIFIER", '')
             for c in self.origin[self.position:]:
                 if c.isalpha() or c.isnumeric() or c == "_":
                     self.actual.value += c
