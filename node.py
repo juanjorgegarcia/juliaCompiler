@@ -23,12 +23,30 @@ class BinOP(Node):
     def Evaluate(self):
         if self.value == "+":
             return self.children[0].Evaluate() + self.children[1].Evaluate()
+
         elif self.value == "-":
             return self.children[0].Evaluate() - self.children[1].Evaluate()
+
         elif self.value == "*":
             return self.children[0].Evaluate() * self.children[1].Evaluate()
+
         elif self.value == "/":
             return int(self.children[0].Evaluate() / self.children[1].Evaluate())
+
+        elif self.value == "==":
+            return self.children[0].Evaluate() == self.children[1].Evaluate()
+
+        elif self.value == ">":
+            return self.children[0].Evaluate() > self.children[1].Evaluate()
+
+        elif self.value == "<":
+            return self.children[0].Evaluate() < self.children[1].Evaluate()
+
+        elif self.value == "&&":
+            return self.children[0].Evaluate() and self.children[1].Evaluate()
+
+        elif self.value == "||":
+            return self.children[0].Evaluate() or self.children[1].Evaluate()
 
 
 class UnOp(Node):
@@ -44,6 +62,8 @@ class UnOp(Node):
             return self.children[0].Evaluate()
         if self.value == "-":
             return -self.children[0].Evaluate()
+        if self.value == "!":
+            return not(self.children[0].Evaluate())
 
 
 class IntVal(Node):
@@ -74,7 +94,7 @@ class Assignment(Node):
         table.set_symbol(self.children[0].value, self.children[1].Evaluate())
 
 
-class Indentifier(Node):
+class Identifier(Node):
     def __init__(self, value: str):
         super().__init__(value, [])
 
@@ -96,10 +116,50 @@ class Print(Node):
         return
 
 
-class Statment(Node):
-    def __init__(self, children=[]):
-        super().__init__("", children)
+class Statement(Node):
+    def __init__(self, children):
+        super().__init__("", [])
 
     def Evaluate(self):
         for child in self.children:
             child.Evaluate()
+
+
+class Readline(Node):
+    def __init__(self):
+        super().__init__("", None)
+
+    def Evaluate(self):
+        self.value = int(input())
+        return self.value
+
+
+class While(Node):
+    def __init__(self, value: str, children=[None, None]):
+        if children and len(children) == 2:
+            super().__init__(value, children)
+        else:
+            raise SyntaxError(
+                f"INVALID OPERATION: WHILE must have 2 children ")
+
+    def Evaluate(self):
+        while self.children[0].Evaluate():
+            self.children[1].Evaluate()
+
+
+class IF(Node):
+    def __init__(self, value: str, children):
+        if children and len(children) >= 2:
+            super().__init__(value, children)
+        else:
+            raise SyntaxError(
+                f"INVALID OPERATION: IF must have 2 or 3 children ")
+
+    def Evaluate(self):
+        res = 0
+        if self.children[0].Evaluate():
+            res = self.children[1].Evaluate()
+        else:
+            if len(self.children) > 2:
+                res = self.children[2].Evaluate()
+        return res
