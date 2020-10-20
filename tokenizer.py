@@ -72,7 +72,7 @@ class Tokenizer:
             self.position += 1
             if self.position < len(self.origin):
                 if self.origin[self.position] == "&":
-                    self.actual = Token("AND_OP", value)
+                    self.actual = Token("AND_OP", "&&")
                     self.position += 1
             return
 
@@ -80,7 +80,7 @@ class Tokenizer:
             self.position += 1
             if self.position < len(self.origin):
                 if self.origin[self.position] == "|":
-                    self.actual = Token("OR_OP", value)
+                    self.actual = Token("OR_OP", "||")
                     self.position += 1
             return
 

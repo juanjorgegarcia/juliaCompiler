@@ -163,15 +163,3 @@ class IF(Node):
             if len(self.children) > 2:
                 res = self.children[2].Evaluate()
         return res
-
-
-class Else(Node):
-    def __init__(self, value: str, children):
-        if children and len(children) == 1:
-            super().__init__(value, children)
-        else:
-            raise SyntaxError(
-                f"INVALID OPERATION: IF must have exactly 1 child ")
-
-    def Evaluate(self):
-        return self.children[0].Evaluate()

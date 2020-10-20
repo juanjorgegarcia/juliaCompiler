@@ -1,11 +1,25 @@
-i = 0
-while i<4
-    println(i)
-    if i == 420
-        println(69420)
+x = 5
+x1 = 0
+y2 = 10
+y = readline()
+while (x1 < y) || (x1 == y)
+    if x1 < 3
+        println(2)
+    elseif x1 == 3
+        println(20)
+    elseif x1 == 4
+        println(200)
     else
-        println(42069)
+        println(2000)
     end
-    i = i + 1
-    println(i)
+
+    if (x1 > 3) && (y2 == 10)
+        println(10)
+    else
+        println(100)
+    end
+
+    println((x1 > 3) && (x1 < y2))
+    println(x1)
+    x1 = x1 + 1
 end
