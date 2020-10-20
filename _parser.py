@@ -35,13 +35,13 @@ class Parser:
 
     @staticmethod
     def parseRelExpression():
-        res = Parser.parseTerm()
+        res = Parser.parseExpression()
         while (Parser.tokens.actual._type == 'EQ_OP' or Parser.tokens.actual._type == 'G0_OP' or Parser.tokens.actual._type == 'L0_OP'):
             if Parser.tokens.actual._type == 'EQ_OP' or Parser.tokens.actual._type == 'G0_OP' or Parser.tokens.actual._type == 'L0_OP':
                 res = BinOP(Parser.tokens.actual.value,
                             [res, None])
                 Parser.tokens.selectNext()
-                res.children[1] = Parser.parseRelExpression()
+                res.children[1] = Parser.parseTerm()
 
             else:
                 raise SyntaxError(
@@ -51,9 +51,8 @@ class Parser:
     @staticmethod
     def parseTerm():
         res = Parser.parseFactor()
-
-        while (Parser.tokens.actual._type == 'DIV' or Parser.tokens.actual._type == 'MULT'):
-            if Parser.tokens.actual._type == 'DIV' or Parser.tokens.actual._type == 'MULT':
+        while (Parser.tokens.actual._type == 'DIV' or Parser.tokens.actual._type == 'MULT' or Parser.tokens.actual._type == 'AND_OP'):
+            if Parser.tokens.actual._type == 'DIV' or Parser.tokens.actual._type == 'MULT' or Parser.tokens.actual._type == 'AND_OP':
                 res = BinOP(Parser.tokens.actual.value,
                             [res, None])
 
@@ -67,7 +66,6 @@ class Parser:
 
     @staticmethod
     def parseFactor():
-
         if Parser.tokens.actual._type == 'INT':
             res = IntVal(Parser.tokens.actual.value)
             Parser.tokens.selectNext()
@@ -111,8 +109,8 @@ class Parser:
                 res = NoOP(Parser.tokens.actual.value)
 
         elif Parser.tokens.actual._type == "IDENTIFIER":
-            res = Identifier(Parser.tokens.actual.value)
-            res = Assignment(Parser.tokens.actual.value, [res, None])
+            res = Assignment(Parser.tokens.actual.value, [
+                             Identifier(Parser.tokens.actual.value), None])
             Parser.tokens.selectNext()
             if Parser.tokens.actual._type == "EQUAL":
                 Parser.tokens.selectNext()
@@ -147,7 +145,6 @@ class Parser:
             Parser.tokens.selectNext()
             res = While(Parser.tokens.actual.value, [
                 Parser.parseRelExpression(), None])
-
             if Parser.tokens.actual._type == "NEW_LINE":
                 Parser.tokens.selectNext()
                 res.children[1] = Parser.parseBlock()
@@ -155,9 +152,9 @@ class Parser:
                     Parser.tokens.selectNext()
                     if Parser.tokens.actual._type == "NEW_LINE":
                         Parser.tokens.selectNext()
-            else:
-                raise SyntaxError(
-                    f'UNEXPECTED TOKEN: got ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position}), EXPECTED END AFTER WHILE')
+                else:
+                    raise SyntaxError(
+                        f'UNEXPECTED TOKEN: got ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position}), EXPECTED END AFTER WHILE')
         else:
             raise SyntaxError(
                 f'UNEXPECTED TOKEN: got ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position})')
