@@ -23,22 +23,30 @@ class BinOP(Node):
     def Evaluate(self):
         if self.value == "+":
             return self.children[0].Evaluate() + self.children[1].Evaluate()
+
         elif self.value == "-":
             return self.children[0].Evaluate() - self.children[1].Evaluate()
+
         elif self.value == "*":
             return self.children[0].Evaluate() * self.children[1].Evaluate()
+
         elif self.value == "/":
-            return int(self.children[0].Evaluate() or self.children[1].Evaluate())
-        elif self.value == "||":
-            return (self.children[0].Evaluate() or self.children[1].Evaluate())
-        elif self.value == "&&":
-            return (self.children[0].Evaluate() and self.children[1].Evaluate())
+            return int(self.children[0].Evaluate() / self.children[1].Evaluate())
+
         elif self.value == "==":
-            return (self.children[0].Evaluate() == self.children[1].Evaluate())
+            return self.children[0].Evaluate() == self.children[1].Evaluate()
+
         elif self.value == ">":
-            return (self.children[0].Evaluate() > self.children[1].Evaluate())
+            return self.children[0].Evaluate() > self.children[1].Evaluate()
+
         elif self.value == "<":
-            return (self.children[0].Evaluate() < self.children[1].Evaluate())
+            return self.children[0].Evaluate() < self.children[1].Evaluate()
+
+        elif self.value == "&&":
+            return self.children[0].Evaluate() and self.children[1].Evaluate()
+
+        elif self.value == "||":
+            return self.children[0].Evaluate() or self.children[1].Evaluate()
 
 
 class UnOp(Node):
@@ -109,8 +117,8 @@ class Print(Node):
 
 
 class Statement(Node):
-    def __init__(self, children=[]):
-        super().__init__("", children)
+    def __init__(self, children):
+        super().__init__("", [])
 
     def Evaluate(self):
         for child in self.children:
@@ -140,7 +148,7 @@ class While(Node):
 
 
 class IF(Node):
-    def __init__(self, value: str, children=[None, None, None]):
+    def __init__(self, value: str, children):
         if children and len(children) >= 2:
             super().__init__(value, children)
         else:
@@ -152,6 +160,18 @@ class IF(Node):
         if self.children[0].Evaluate():
             res = self.children[1].Evaluate()
         else:
-            if self.children[2]:
+            if len(self.children) > 2:
                 res = self.children[2].Evaluate()
         return res
+
+
+class Else(Node):
+    def __init__(self, value: str, children):
+        if children and len(children) == 1:
+            super().__init__(value, children)
+        else:
+            raise SyntaxError(
+                f"INVALID OPERATION: IF must have exactly 1 child ")
+
+    def Evaluate(self):
+        return self.children[0].Evaluate()

@@ -94,7 +94,7 @@ class Parser:
 
     @staticmethod
     def parseBlock():
-        stmt = Statement()
+        stmt = Statement([])
         while (Parser.tokens.actual._type != 'EOF' and Parser.tokens.actual._type != 'END' and Parser.tokens.actual._type != 'ELSEIF' and Parser.tokens.actual._type != 'ELSE'):
             stmt.children.append(Parser.parseCommand())
 
@@ -103,37 +103,54 @@ class Parser:
     @staticmethod
     def parseCommand():
         res = None
-        if Parser.tokens.actual._type == "NEW_LINE":
-            Parser.tokens.selectNext()
-            if res is None:
-                res = NoOP(Parser.tokens.actual.value)
 
-        elif Parser.tokens.actual._type == "IDENTIFIER":
-            res = Assignment(Parser.tokens.actual.value, [
-                             Identifier(Parser.tokens.actual.value), None])
+        if Parser.tokens.actual._type == "IDENTIFIER":
+            var = Parser.tokens.actual
             Parser.tokens.selectNext()
             if Parser.tokens.actual._type == "EQUAL":
+                res = Assignment(Parser.tokens.actual.value, [
+                    var, None])
                 Parser.tokens.selectNext()
                 if Parser.tokens.actual._type == "READLINE":
                     Parser.tokens.selectNext()
                     if Parser.tokens.actual._type == "OPEN_PARENTHESIS":
                         Parser.tokens.selectNext()
                         if Parser.tokens.actual._type == "CLOSED_PARENTHESIS":
-                            res.children[1] = Readline()
                             Parser.tokens.selectNext()
+                            res.children[1] = Readline()
+                            if Parser.tokens.actual._type == "NEW_LINE":
+                                Parser.tokens.selectNext()
+                            else:
+                                raise SyntaxError(
+                                    f"Expected '\\n', got '{Parser.tokens.actual.value}'")
+                        else:
+                            raise SyntaxError(
+                                f'INVALID SYNTAX: missing "CLOSED_PARENTHESIS"({Parser.tokens.actual.value}) in position: ({Parser.tokens.position}, parenthesis are opened but no closed)')
+
                 else:
                     res.children[1] = Parser.parseRelExpression()
-
+                    if Parser.tokens.actual._type == "NEW_LINE":
+                        Parser.tokens.selectNext()
+                    else:
+                        raise SyntaxError(
+                            f"Expected '\\n', got '{Parser.tokens.actual.value}'")
+            else:
+                raise SyntaxError(
+                    f"Expected '=', got '{Parser.tokens.actual.value}'")
         elif Parser.tokens.actual._type == "PRINT":
             Parser.tokens.selectNext()
             if Parser.tokens.actual._type == "OPEN_PARENTHESIS":
                 Parser.tokens.selectNext()
-                res = Print(Parser.tokens.actual.value, [Parser.parseRelExpression()
-
-                                                         ])
+                res = Print(Parser.tokens.actual.value, [
+                            Parser.parseRelExpression()])
 
                 if Parser.tokens.actual._type == "CLOSED_PARENTHESIS":
                     Parser.tokens.selectNext()
+                    if Parser.tokens.actual._type == "NEW_LINE":
+                        Parser.tokens.selectNext()
+                    else:
+                        raise SyntaxError(
+                            f"Expected '\\n', got '{Parser.tokens.actual.value}'")
                 else:
                     raise SyntaxError(
                         f'INVALID SYNTAX: missing "CLOSED_PARENTHESIS"({Parser.tokens.actual.value}) in position: ({Parser.tokens.position}, parenthesis are opened but no closed)')
@@ -144,7 +161,8 @@ class Parser:
         elif Parser.tokens.actual._type == "WHILE":
             Parser.tokens.selectNext()
             res = While(Parser.tokens.actual.value, [
-                Parser.parseRelExpression(), None])
+                None, None])
+            res.children[0] = Parser.parseRelExpression()
             if Parser.tokens.actual._type == "NEW_LINE":
                 Parser.tokens.selectNext()
                 res.children[1] = Parser.parseBlock()
@@ -152,9 +170,38 @@ class Parser:
                     Parser.tokens.selectNext()
                     if Parser.tokens.actual._type == "NEW_LINE":
                         Parser.tokens.selectNext()
+                    else:
+                        raise SyntaxError(
+                            f"Expected '\\n', got '{Parser.tokens.actual.value}'")
+
                 else:
                     raise SyntaxError(
                         f'UNEXPECTED TOKEN: got ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position}), EXPECTED END AFTER WHILE')
+            else:
+                raise SyntaxError(
+                    f"Expected '\\n', got '{Parser.tokens.actual.value}'")
+
+        elif Parser.tokens.actual._type == "IF":
+            Parser.tokens.selectNext()
+            res = IF(Parser.tokens.actual.value, [
+                Parser.parseRelExpression(), None, None])
+            if Parser.tokens.actual._type == "NEW_LINE":
+                Parser.tokens.selectNext()
+                res.children[1] = Parser.parseBlock()
+                if Parser.tokens.actual._type == "END":
+                    Parser.tokens.selectNext()
+                elif Parser.tokens.actual._type == "ELSE":
+                    Parser.tokens.selectNext()
+                    if Parser.tokens.actual._type == "NEW_LINE":
+                        Parser.tokens.selectNext()
+                        res.children[2] = Parser.parseBlock()
+                        if Parser.tokens.actual._type == "END":
+                            Parser.tokens.selectNext()
+
+        elif Parser.tokens.actual._type == "NEW_LINE":
+            Parser.tokens.selectNext()
+            if res is None:
+                res = NoOP(Parser.tokens.actual.value)
         else:
             raise SyntaxError(
                 f'UNEXPECTED TOKEN: got ({Parser.tokens.actual.value}) in position: ({Parser.tokens.position})')
