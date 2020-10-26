@@ -160,6 +160,6 @@ class IF(Node):
         if self.children[0].Evaluate():
             res = self.children[1].Evaluate()
         else:
-            if len(self.children) > 2:
+            if len(self.children) > 2 and self.children[2]:
                 res = self.children[2].Evaluate()
         return res
