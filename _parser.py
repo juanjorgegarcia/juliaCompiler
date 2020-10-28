@@ -21,8 +21,8 @@ class Parser:
     @staticmethod
     def parseExpression():
         res = Parser.parseTerm()
-        while (Parser.tokens.actual._type == 'PLUS' or Parser.tokens.actual._type == 'MINUS' or Parser.tokens.actual._type == 'OR_OP'):
-            if Parser.tokens.actual._type == 'PLUS' or Parser.tokens.actual._type == 'MINUS' or Parser.tokens.actual._type == 'OR_OP':
+        while (Parser.tokens.actual._type == 'PLUS' or Parser.tokens.actual._type == 'MINUS' or Parser.tokens.actual._type == "OR_OP"):
+            if Parser.tokens.actual._type == 'PLUS' or Parser.tokens.actual._type == 'MINUS' or Parser.tokens.actual._type == "OR_OP":
                 res = BinOP(Parser.tokens.actual.value,
                             [res, None])
                 Parser.tokens.selectNext()
@@ -103,8 +103,35 @@ class Parser:
     @staticmethod
     def parseCommand():
         res = None
+        if Parser.tokens.actual._type == "DECLARATOR":
+            Parser.tokens.selectNext()
+            if Parser.tokens.actual._type == "IDENTIFIER":
+                res = Identifier(Parser.tokens.actual.value)
+                Parser.tokens.selectNext()
+                if Parser.tokens.actual._type == "COLON":
+                    Parser.tokens.selectNext()
+                    if Parser.tokens.actual._type == "COLON":
+                        Parser.tokens.selectNext()
+                        if Parser.tokens.actual._type == "TYPE":
+                            _type = VarType(Parser.tokens.actual.value)
+                            res = VarDec(None, [res, _type])
+                            Parser.tokens.selectNext()
 
-        if Parser.tokens.actual._type == "IDENTIFIER":
+                        else:
+                            raise SyntaxError(
+                                f"Expected a 'TYPE' in variable declaration, instead got '{Parser.tokens.actual.value}")
+                    else:
+                        raise SyntaxError(
+                            f"Expected an ':', instead got '{Parser.tokens.actual.value}")
+                else:
+                    raise SyntaxError(
+                        f"Expected an ':', instead got '{Parser.tokens.actual.value}'")
+
+            else:
+                raise SyntaxError(
+                    f"Expected an IDENTIFIER, instead got '{Parser.tokens.actual.value}'")
+
+        elif Parser.tokens.actual._type == "IDENTIFIER":
             var = Parser.tokens.actual
             Parser.tokens.selectNext()
             if Parser.tokens.actual._type == "EQUAL":
@@ -184,19 +211,51 @@ class Parser:
         elif Parser.tokens.actual._type == "IF":
             Parser.tokens.selectNext()
             res = IF(Parser.tokens.actual.value, [
-                Parser.parseRelExpression(), None, None])
+                     Parser.parseRelExpression(), None, None])
+
+            last = None
+            current = None
+
             if Parser.tokens.actual._type == "NEW_LINE":
                 Parser.tokens.selectNext()
                 res.children[1] = Parser.parseBlock()
-                if Parser.tokens.actual._type == "END":
+
+                while Parser.tokens.actual._type == "ELSEIF":
                     Parser.tokens.selectNext()
-                elif Parser.tokens.actual._type == "ELSE":
-                    Parser.tokens.selectNext()
+
+                    current = IF(Parser.tokens.actual.value, [
+                                 Parser.parseRelExpression(), None, None])
+
                     if Parser.tokens.actual._type == "NEW_LINE":
                         Parser.tokens.selectNext()
-                        res.children[2] = Parser.parseBlock()
-                        if Parser.tokens.actual._type == "END":
-                            Parser.tokens.selectNext()
+
+                        current.children[1] = Parser.parseBlock()
+
+                        if last is None:
+                            res.children[2] = current
+
+                        else:
+                            last.children[2] = current
+
+                        last = current
+
+                if Parser.tokens.actual._type == "ELSE":
+                    Parser.tokens.selectNext()
+
+                    if Parser.tokens.actual._type == "NEW_LINE":
+                        Parser.tokens.selectNext()
+
+                        if last is None:
+                            res.children[2] = Parser.parseBlock()
+
+                        else:
+                            last.children[2] = Parser.parseBlock()
+
+                if Parser.tokens.actual._type == "END":
+                    Parser.tokens.selectNext()
+
+                    if Parser.tokens.actual._type == "NEW_LINE":
+                        Parser.tokens.selectNext()
 
         elif Parser.tokens.actual._type == "NEW_LINE":
             Parser.tokens.selectNext()

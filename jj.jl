@@ -1,3 +1,7 @@
+local x::Int
+local x1::Int
+local y2::Int
+local y::Int
 x = 5
 x1 = 0
 y2 = 10

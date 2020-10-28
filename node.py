@@ -108,7 +108,7 @@ class Print(Node):
             super().__init__(value, children)
         else:
             raise SyntaxError(
-                f"INVALID OPERATION: Print must have 1 children ")
+                f"INVALID OPERATION: Print must have 1 child ")
 
     def Evaluate(self):
         if self.children:
@@ -163,3 +163,45 @@ class IF(Node):
             if len(self.children) > 2 and self.children[2]:
                 res = self.children[2].Evaluate()
         return res
+
+
+class BoolVal(Node):
+    def __init__(self, value: str):
+        super().__init__(value, None)
+
+    def Evaluate(self):
+        return (self.value, "Bool")
+
+
+class VarDec(Node):
+    # value = None, children[0] = identifier_value (node: Identifier), children[1] = variable type (node: VarType)
+    def __init__(self, value: str, children):
+        if children and len(children) == 2:
+            super().__init__(value, children)
+        else:
+            raise SyntaxError(
+                f"INVALID OPERATION: node VarDec must have exactly 2 children ")
+
+    def Evaluate(self):
+        if self.children and len(self.children) == 2:
+            table.declare_symbol(
+                self.children[0].value, self.children[1].Evaluate())
+        else:
+            raise SyntaxError(
+                f"INVALID OPERATION: node VarDec must have exactly 1 child ")
+
+
+class VarType(Node):
+    def __init__(self, value: str):  # value = variable type
+        if value:
+            self.value = value
+        else:
+            raise SyntaxError(
+                f"INVALID OPERATION: node VarType must have a value ")
+
+    def Evaluate(self):
+        if self.value:
+            return self.value
+        else:
+            raise SyntaxError(
+                f"INVALID OPERATION: node VarType must have a value ")
