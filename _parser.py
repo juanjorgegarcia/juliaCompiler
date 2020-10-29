@@ -70,6 +70,17 @@ class Parser:
             res = IntVal(Parser.tokens.actual.value)
             Parser.tokens.selectNext()
 
+        elif Parser.tokens.actual._type == 'BOOL':
+            if Parser.tokens.actual.value == "true":
+                res = BoolVal(True)
+            elif Parser.tokens.actual.value == "false":
+                res = BoolVal(False)
+            Parser.tokens.selectNext()
+
+        elif Parser.tokens.actual._type == 'STRING':
+            res = StringVal(Parser.tokens.actual.value)
+            Parser.tokens.selectNext()
+
         elif Parser.tokens.actual._type == 'PLUS' or Parser.tokens.actual._type == 'MINUS' or Parser.tokens.actual._type == 'NOT_OP':
             res = UnOp(Parser.tokens.actual.value, [None])
             Parser.tokens.selectNext()

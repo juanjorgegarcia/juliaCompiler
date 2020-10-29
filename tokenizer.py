@@ -9,7 +9,7 @@ class Tokenizer:
         self.actual = None
         self.keywords = {"println": "PRINT",
                          "readline": "READLINE", "while": "WHILE", "end": "END", "if": "IF", "else": "ELSE",
-                         "elseif": "ELSEIF", "Int": "TYPE", "Bool": "TYPE", "String": "TYPE", "local": "DECLARATOR"}
+                         "elseif": "ELSEIF", "Int": "TYPE", "Bool": "TYPE", "String": "TYPE", "local": "DECLARATOR", "true": "BOOL", "false": "BOOL"}
 
     def selectNext(self):
         self.actual = Token("", "")
@@ -63,6 +63,17 @@ class Tokenizer:
 
         if value == "\n":
             self.actual = Token("NEW_LINE", '\n')
+            self.position += 1
+            return
+
+        if value == '"':
+            self.actual = Token("STRING", '')
+            self.position += 1
+            c = self.origin[self.position]
+            while c != '"':
+                self.actual.value += c
+                self.position += 1
+                c = self.origin[self.position]
             self.position += 1
             return
 
