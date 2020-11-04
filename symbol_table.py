@@ -46,7 +46,7 @@ class Symbol_Table:
             return self.is_str(value)
 
     def is_boolean(self, value):
-        if value == "true" or value == "false":
+        if value == True or value == False:
             return True
         else:
             return False
