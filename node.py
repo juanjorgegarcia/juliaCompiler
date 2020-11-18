@@ -169,20 +169,16 @@ class UnOp(Node):
     def Evaluate(self):
         if self.value == "+":
             self.children[0].Evaluate()
-            compiler.write_line("MOV EBX, EAX;")
 
             # return SymbolValue("Int", self.children[0].Evaluate().value)
         if self.value == "-":
             self.children[0].Evaluate()
-            compiler.write_line("IMUL -1;")
-            compiler.write_line("MOV EBX, EAX;")
+            compiler.write_line("NEG EBX;")
 
             # return SymbolValue("Int", -self.children[0].Evaluate().value)
         if self.value == "!":
             self.children[0].Evaluate()
-            compiler.write_line("NOT EAX;")
-            compiler.write_line("MOV EBX, EAX;")
-            # return SymbolValue("Bool", not(self.children[0].Evaluate().value))
+            compiler.write_line("NOT EBX;")
 
 
 class IntVal(Node):
