@@ -304,7 +304,11 @@ class IF(Node):
         self.children[1].Evaluate()
         compiler.write_line(f"EXIT_{self.i}:")
         if(self.children[2]):
+            self.children[0].Evaluate()
+            compiler.write_line("CMP EBX, False")
+            compiler.write_line(f"JNE EXIT_ELSE{self.i}")
             self.children[2].Evaluate()
+            compiler.write_line(f"EXIT_ELSE{self.i}:")
 
 
 class BoolVal(Node):
