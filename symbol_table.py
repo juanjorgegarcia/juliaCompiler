@@ -1,11 +1,12 @@
 from collections import namedtuple
 
-SymbolValue = namedtuple("SymbolValue", "type, value")
+SymbolValue = namedtuple("SymbolValue", "type, value, pos")
 
 
 class Symbol_Table:
     def __init__(self):
         self.symbols = {}
+        self.pos = 0
 
     def get(self, symbol):
         if symbol in self.symbols:
@@ -17,11 +18,12 @@ class Symbol_Table:
     def set_symbol(self, symbol, new_var):
         new_type, new_value = new_var
         if symbol in self.symbols:
-            _type = self.symbols[symbol].type
+            __, _type, _pos = self.symbols[symbol]
+
             if self.check_types(new_value, _type) and new_type == _type:
 
                 self.symbols[symbol] = SymbolValue(
-                    _type, new_value)
+                    _type, new_value, _pos)
             else:
                 raise ValueError(
                     f"INVALID ASSIGNMENT: can't assign value {new_value} to variable of type {_type} ")
@@ -32,7 +34,8 @@ class Symbol_Table:
 
     def declare_symbol(self, symbol, _type):
         if symbol not in self.symbols:
-            self.symbols[symbol] = SymbolValue(_type, None)
+            self.pos += 4
+            self.symbols[symbol] = SymbolValue(_type, None, self.pos)
         else:
             raise ValueError(
                 f"INVALID DECLARATION: variable {symbol} already declared in the Symbol Table{self.symbols}")
