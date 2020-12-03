@@ -194,7 +194,11 @@ class IF(Node):
                 f"INVALID OPERATION: IF must have 2 or 3 children ")
 
     def Evaluate(self):
-        if self.children[0].Evaluate().value:
+        condition = self.children[0].Evaluate()
+        if condition.type == "String":
+                        raise SyntaxError(
+                f"INVALID OPERATION: type String is not a valid IF condition alone")
+        if condition.value:
             self.children[1].Evaluate()
         else:
             if len(self.children) > 2 and self.children[2]:
