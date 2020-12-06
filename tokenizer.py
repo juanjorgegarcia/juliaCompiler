@@ -9,7 +9,7 @@ class Tokenizer:
         self.actual = None
         self.keywords = {"println": "PRINT",
                          "readline": "READLINE", "while": "WHILE", "end": "END", "if": "IF", "else": "ELSE",
-                         "elseif": "ELSEIF", "Int": "TYPE", "Bool": "TYPE", "String": "TYPE", "local": "DECLARATOR", "true": "BOOL", "false": "BOOL"}
+                         "elseif": "ELSEIF", "Int": "TYPE", "Bool": "TYPE", "String": "TYPE", "local": "DECLARATOR", "true": "BOOL", "false": "BOOL", "function": "FUNCTION_DEC", "return": "RETURN"}
 
     def selectNext(self):
         self.actual = Token("", "")
@@ -116,6 +116,12 @@ class Tokenizer:
             self.actual = Token("NOT_OP", value)
             self.position += 1
             return
+
+        if value == ",":
+            self.actual = Token("COMMA", value)
+            self.position += 1
+            return
+
 
         if value.isnumeric():
             self.actual = Token("INT", '')
